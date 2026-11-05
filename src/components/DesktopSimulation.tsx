@@ -3,9 +3,23 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
+import {
+  Monitor,
+  Globe,
+  FileText,
+  Folder,
+  HardDrive,
+  Save,
+  Settings,
+  Trash2,
+  Command,
+} from 'lucide-react'
 import '../styles/desktop.css'
+
+export type DesktopVariant = 'win95' | 'xp' | 'modern'
 
 type IconName =
   | 'computer'
@@ -28,6 +42,7 @@ type DesktopWindow = {
   height: number
   minimized: boolean
   maximized: boolean
+  snapped?: 'left' | 'right'
 }
 type FileItem = {
   name: string
@@ -41,6 +56,11 @@ type Folder = {
   parent?: string
   items: FileItem[]
   empty?: string
+}
+type SessionDocument = {
+  text: string
+  savedText: string
+  saved: boolean
 }
 
 const readme =
@@ -142,7 +162,37 @@ const windowSpecs: Record<
   shutdown: { title: 'Shut Down Windows', width: 382, height: 228 },
 }
 
-function PixelIcon({ name, size = 32 }: { name: IconName; size?: number }) {
+function PixelIcon({
+  name,
+  size = 32,
+  variant = 'win95',
+}: {
+  name: IconName
+  size?: number
+  variant?: DesktopVariant
+}) {
+  if (variant === 'modern') {
+    const Icon = {
+      computer: Monitor,
+      internet: Globe,
+      document: FileText,
+      folder: Folder,
+      drive: HardDrive,
+      floppy: Save,
+      settings: Settings,
+      recycle: Trash2,
+      flag: Command,
+    }[name]
+    return (
+      <Icon
+        size={size}
+        strokeWidth={1.6}
+        color={name === 'folder' ? '#89702b' : '#4f735b'}
+        aria-hidden="true"
+        className="modern-desktop-icon"
+      />
+    )
+  }
   return (
     <svg
       width={size}
@@ -283,7 +333,34 @@ const knownAddresses: Record<string, 'home' | 'links' | 'history'> = {
   'welcome.local/history': 'history',
 }
 
-export default function DesktopSimulation() {
+export default function DesktopSimulation({
+  variant = 'win95',
+}: {
+  variant?: DesktopVariant
+}) {
+  const desktopYear =
+    variant === 'win95' ? 1995 : variant === 'xp' ? 2001 : 2026
+  const desktopName =
+    variant === 'win95'
+      ? 'Windows 95'
+      : variant === 'xp'
+        ? 'Windows XP-inspired'
+        : 'Modern museum'
+  const readmeTemplate =
+    variant === 'win95'
+      ? readme
+      : `WELCOME TO THE ${desktopName.toUpperCase()} PLAYGROUND
+
+This is an original educational desktop recreation inspired by ${desktopYear}.
+
+Open apps, explore files, and write a note. Changes stay in this session only.
+
+The Documents folder contains archived notes from 1995. The browser app visits a small local collection of historical pages; it never opens the live web.
+
+${variant === 'modern' ? 'Use Apps to search for an application or document. Snap a window left or right with its titlebar controls.' : 'Discover the blue titlebars, green Start button, and a different era of desktop design.'}
+
+This is not an actual operating system.`
+  const [appSearch, setAppSearch] = useState('')
   const desktopRef = useRef<HTMLDivElement>(null)
   const zCounter = useRef(1)
   const drag = useRef<{
@@ -302,7 +379,10 @@ export default function DesktopSimulation() {
   const [folderHistory, setFolderHistory] = useState<string[]>([])
   const [selectedFile, setSelectedFile] = useState('')
   const [detailsView, setDetailsView] = useState(false)
-  const [note, setNote] = useState({ name: 'Read me', text: readme })
+  const [note, setNote] = useState({ id: 'readme', name: 'Read me' })
+  const [documents, setDocuments] = useState<Record<string, SessionDocument>>(
+    {},
+  )
   const [address, setAddress] = useState('http://welcome.local/')
   const [browserPage, setBrowserPage] = useState<
     'home' | 'links' | 'history' | 'missing'
@@ -313,6 +393,12 @@ export default function DesktopSimulation() {
   const [wallpaper, setWallpaper] = useState<'teal' | 'blue' | 'plum'>('teal')
   const [showDisplay, setShowDisplay] = useState(false)
   const [browserStatus, setBrowserStatus] = useState('Done')
+  const currentDocument = documents[note.id] ?? {
+    text: readmeTemplate,
+    savedText: readmeTemplate,
+    saved: false,
+  }
+  const noteChanged = currentDocument.text !== currentDocument.savedText
 
   useEffect(() => {
     const element = desktopRef.current
@@ -358,7 +444,11 @@ export default function DesktopSimulation() {
         {
           id,
           ...windowSpecs[id],
-          title: title ?? windowSpecs[id].title,
+          title:
+            title ??
+            (variant === 'modern' && id === 'browser'
+              ? 'Museum Browser'
+              : windowSpecs[id].title),
           x: 196 + current.length * 18,
           y: 62 + current.length * 14,
           z,
@@ -371,9 +461,27 @@ export default function DesktopSimulation() {
     setMenu(null)
   }
 
-  function openNote(name: string, text: string) {
-    setNote({ name, text })
+  function openNote(name: string, text: string, documentId = name) {
+    if (name === 'Read me' || name === 'README.TXT') text = readmeTemplate
+    const id =
+      name === 'Read me' || name === 'README.TXT' ? 'readme' : documentId
+    setDocuments((current) =>
+      current[id]
+        ? current
+        : { ...current, [id]: { text, savedText: text, saved: false } },
+    )
+    setNote({ id, name })
     openWindow('notepad', `${name} - Notepad`)
+  }
+
+  function saveNote() {
+    setDocuments((current) => {
+      const document = current[note.id] ?? currentDocument
+      return {
+        ...current,
+        [note.id]: { ...document, savedText: document.text, saved: true },
+      }
+    })
   }
 
   function goToFolder(next: string, recordHistory = true) {
@@ -393,7 +501,8 @@ export default function DesktopSimulation() {
     } else if (item.action === 'display') {
       setShowDisplay(true)
       openWindow('about', 'Display Properties')
-    } else if (item.text) openNote(item.name, item.text)
+    } else if (item.text)
+      openNote(item.name, item.text, `${folder}/${item.name}`)
   }
 
   function closeWindow(id: WindowKind) {
@@ -404,17 +513,53 @@ export default function DesktopSimulation() {
   function toggleMaximize(id: WindowKind) {
     setWindows((current) =>
       current.map((window) =>
-        window.id === id ? { ...window, maximized: !window.maximized } : window,
+        window.id === id
+          ? { ...window, maximized: !window.maximized, snapped: undefined }
+          : window,
       ),
     )
     focusWindow(id)
   }
 
+  function snapWindow(id: WindowKind, side: 'left' | 'right') {
+    setWindows((current) =>
+      current.map((window) =>
+        window.id === id
+          ? { ...window, maximized: false, snapped: side }
+          : window,
+      ),
+    )
+    focusWindow(id)
+  }
   function geometry(window: DesktopWindow) {
     const width = Math.max(250, Math.min(window.width, size.width - 20))
     const height = Math.max(200, Math.min(window.height, size.height - 52))
+    if (window.snapped) {
+      if (size.width < 560)
+        return {
+          left: 8,
+          top:
+            window.snapped === 'left'
+              ? 8
+              : Math.max(8, size.height - height - 42),
+          width: size.width - 16,
+          height,
+        }
+      const halfWidth = (size.width - 20) / 2
+      return {
+        left: window.snapped === 'left' ? 8 : halfWidth + 12,
+        top: 8,
+        width: halfWidth,
+        height: size.height - 50,
+      }
+    }
     return window.maximized
-      ? { left: 3, top: 3, width: size.width - 6, height: size.height - 36 }
+      ? {
+          left: 3,
+          top: 3,
+          width: size.width - 6,
+          height: size.height - (variant === 'modern' ? 55 : 38),
+        }
       : {
           left: Math.max(8, Math.min(window.x, size.width - width - 8)),
           top: Math.max(8, Math.min(window.y, size.height - height - 40)),
@@ -432,6 +577,7 @@ export default function DesktopSimulation() {
       (event.target instanceof Element && event.target.closest('button'))
     )
       return
+    event.currentTarget.focus({ preventScroll: true })
     const position = geometry(window)
     drag.current = {
       id: window.id,
@@ -451,7 +597,46 @@ export default function DesktopSimulation() {
     const y = movement.y + event.clientY - movement.startY
     setWindows((current) =>
       current.map((window) =>
-        window.id === movement.id ? { ...window, x, y } : window,
+        window.id === movement.id
+          ? { ...window, x, y, snapped: undefined }
+          : window,
+      ),
+    )
+  }
+
+  function moveWithKeyboard(
+    event: ReactKeyboardEvent<HTMLDivElement>,
+    window: DesktopWindow,
+  ) {
+    if (event.target !== event.currentTarget) return
+    const direction = {
+      ArrowLeft: [-1, 0],
+      ArrowRight: [1, 0],
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+    }[event.key]
+    if (!direction) return
+    event.preventDefault()
+    if (window.maximized) return
+    const position = geometry(window)
+    const step = event.shiftKey ? 32 : 8
+    const x = Math.max(
+      8,
+      Math.min(
+        position.left + direction[0] * step,
+        size.width - position.width - 8,
+      ),
+    )
+    const y = Math.max(
+      8,
+      Math.min(
+        position.top + direction[1] * step,
+        size.height - position.height - 40,
+      ),
+    )
+    setWindows((current) =>
+      current.map((item) =>
+        item.id === window.id ? { ...item, x, y, snapped: undefined } : item,
       ),
     )
   }
@@ -500,6 +685,11 @@ export default function DesktopSimulation() {
               <div className="win95-dropdown" role="menu">
                 {label === 'File' && (
                   <>
+                    {window.id === 'notepad' && (
+                      <button role="menuitem" onClick={() => choose(saveNote)}>
+                        Save note
+                      </button>
+                    )}
                     <button
                       role="menuitem"
                       onClick={() => choose(() => openNote('Read me', readme))}
@@ -567,7 +757,17 @@ export default function DesktopSimulation() {
   }
 
   function renderExplorer() {
-    const currentFolder = folders[folder]
+    const currentFolder = {
+      ...folders[folder],
+      items: folders[folder].items.filter(
+        (item) =>
+          !(
+            variant === 'modern' &&
+            folder === 'computer' &&
+            item.folder === 'floppy'
+          ),
+      ),
+    }
     return (
       <>
         <div className="win95-explorer-toolbar">
@@ -597,6 +797,7 @@ export default function DesktopSimulation() {
           <span className="win95-address-label">Address</span>
           <div className="win95-folder-address">
             <PixelIcon
+              variant={variant}
               name={folder === 'computer' ? 'computer' : 'folder'}
               size={15}
             />
@@ -607,6 +808,7 @@ export default function DesktopSimulation() {
         <div className="win95-explorer-content">
           <aside className="win95-explorer-aside">
             <PixelIcon
+              variant={variant}
               name={folder === 'computer' ? 'computer' : 'folder'}
               size={36}
             />
@@ -617,7 +819,7 @@ export default function DesktopSimulation() {
                 ? 'Select an item to see what’s inside.'
                 : 'A little piece of your digital past.'}
             </p>
-            <span>Windows 95</span>
+            <span>{desktopName}</span>
           </aside>
           <div
             className={
@@ -634,7 +836,7 @@ export default function DesktopSimulation() {
                 }
                 onClick={() => openFile(item)}
               >
-                <PixelIcon name={item.icon} />
+                <PixelIcon variant={variant} name={item.icon} />
                 <span>{item.name}</span>
                 {detailsView && (
                   <small>
@@ -656,7 +858,7 @@ export default function DesktopSimulation() {
           <span>{currentFolder.items.length} object(s)</span>
           <span>
             {folder === 'computer'
-              ? 'Your computer, circa 1995'
+              ? `Your computer, circa ${desktopYear}`
               : 'Simulated files'}
           </span>
         </div>
@@ -694,11 +896,11 @@ export default function DesktopSimulation() {
             className="win95-browser-tool"
             onClick={() => navigateBrowser('welcome.local')}
           >
-            <PixelIcon name="computer" size={22} />
+            <PixelIcon variant={variant} name="computer" size={22} />
             Home
           </button>
           <div className="win95-browser-brand">
-            <PixelIcon name="internet" size={30} />
+            <PixelIcon variant={variant} name="internet" size={30} />
           </div>
         </div>
         <form
@@ -727,7 +929,7 @@ export default function DesktopSimulation() {
           {browserPage === 'home' && (
             <>
               <div className="win95-webpage-heading">
-                <PixelIcon name="internet" size={44} />
+                <PixelIcon variant={variant} name="internet" size={44} />
                 <h3>Welcome to the Internet!</h3>
               </div>
               <hr />
@@ -876,14 +1078,20 @@ export default function DesktopSimulation() {
     return (
       <div className="win95-dialog-content">
         <div className="win95-about-heading">
-          <PixelIcon name="flag" size={48} />
+          <PixelIcon variant={variant} name="flag" size={48} />
           <div>
-            <strong>Microsoft Windows 95</strong>
+            <strong>{desktopName} desktop</strong>
             <span>An interactive time capsule</span>
           </div>
         </div>
         <hr />
-        <p>Inspired by the desktop introduced on August 24, 1995.</p>
+        <p>
+          {variant === 'win95'
+            ? 'Inspired by the desktop introduced on August 24, 1995.'
+            : variant === 'xp'
+              ? 'Inspired by Windows XP, released on October 25, 2001.'
+              : 'An original contemporary desktop playground, viewed in 2026.'}
+        </p>
         <p>
           This is a browser-based reconstruction. All files, pages, and settings
           are simulated.
@@ -925,8 +1133,8 @@ export default function DesktopSimulation() {
   return (
     <div
       ref={desktopRef}
-      className={`dtm-desktop dtm-desktop-${wallpaper}`}
-      aria-label="Interactive simulated Windows 95 desktop"
+      className={`dtm-desktop dtm-desktop-${wallpaper} desktop-variant-${variant}`}
+      aria-label={`Interactive simulated ${desktopName} desktop`}
       onPointerDown={() => {
         setStartOpen(false)
         setMenu(null)
@@ -945,15 +1153,17 @@ export default function DesktopSimulation() {
             className="win95-desktop-icon"
             onClick={icon.action}
           >
-            <PixelIcon name={icon.icon} />
+            <PixelIcon variant={variant} name={icon.icon} />
             <span>{icon.label}</span>
           </button>
         ))}
       </div>
       <div className="win95-desktop-watermark" aria-hidden="true">
         <span>YOU ARE HERE</span>
-        <strong>1995</strong>
-        <small>THE DESKTOP ERA</small>
+        <strong>{desktopYear}</strong>
+        <small>
+          {variant === 'modern' ? 'THE CONNECTED DESKTOP' : 'THE DESKTOP ERA'}
+        </small>
       </div>
       {windows.map((window) => (
         <div
@@ -975,6 +1185,12 @@ export default function DesktopSimulation() {
         >
           <div
             className="win95-titlebar"
+            role="group"
+            tabIndex={0}
+            aria-label={`Move ${window.title}`}
+            title="Drag to move, or focus this bar and use arrow keys. Hold Shift to move faster."
+            onFocus={() => focusWindow(window.id)}
+            onKeyDown={(event) => moveWithKeyboard(event, window)}
             onPointerDown={(event) => beginDrag(event, window)}
             onPointerMove={moveDrag}
             onPointerUp={() => {
@@ -987,6 +1203,7 @@ export default function DesktopSimulation() {
           >
             <div className="win95-window-title">
               <PixelIcon
+                variant={variant}
                 name={
                   window.id === 'browser'
                     ? 'internet'
@@ -1001,6 +1218,24 @@ export default function DesktopSimulation() {
               <span>{window.title}</span>
             </div>
             <div className="win95-window-controls">
+              {variant === 'modern' && (
+                <>
+                  <button
+                    aria-label={`Snap ${window.title} left`}
+                    title="Snap left"
+                    onClick={() => snapWindow(window.id, 'left')}
+                  >
+                    ◧
+                  </button>
+                  <button
+                    aria-label={`Snap ${window.title} right`}
+                    title="Snap right"
+                    onClick={() => snapWindow(window.id, 'right')}
+                  >
+                    ◨
+                  </button>
+                </>
+              )}
               <button
                 aria-label={`Minimize ${window.title}`}
                 title="Minimize"
@@ -1045,15 +1280,49 @@ export default function DesktopSimulation() {
           {window.id === 'browser' && renderBrowser()}
           {window.id === 'notepad' && (
             <>
-              <div
-                className="win95-notepad"
-                tabIndex={0}
-                aria-label={`${note.name} contents`}
-              >
-                <pre>{note.text}</pre>
+              <div className="win95-notepad-toolbar">
+                <button className="win95-classic-button" onClick={saveNote}>
+                  Save note
+                </button>
+                <span id="win95-note-scope">
+                  Session only · resets on Restart or reload
+                </span>
               </div>
-              <div className="win95-statusbar">
-                <span>Read only</span>
+              <textarea
+                key={note.id}
+                className="win95-notepad"
+                aria-label={`${note.name} contents`}
+                aria-describedby="win95-note-scope"
+                value={currentDocument.text}
+                spellCheck={false}
+                onChange={(event) => {
+                  const text = event.target.value
+                  setDocuments((current) => ({
+                    ...current,
+                    [note.id]: {
+                      ...(current[note.id] ?? currentDocument),
+                      text,
+                    },
+                  }))
+                }}
+                onKeyDown={(event) => {
+                  if (
+                    (event.ctrlKey || event.metaKey) &&
+                    event.key.toLowerCase() === 's'
+                  ) {
+                    event.preventDefault()
+                    saveNote()
+                  }
+                }}
+              />
+              <div className="win95-statusbar win95-notepad-status">
+                <span role="status" aria-live="polite">
+                  {noteChanged
+                    ? 'Unsaved changes · session only'
+                    : currentDocument.saved
+                      ? 'Saved for this session'
+                      : 'Original template · editable'}
+                </span>
                 <span>Simulated text file</span>
               </div>
             </>
@@ -1062,7 +1331,7 @@ export default function DesktopSimulation() {
           {window.id === 'shutdown' && (
             <div className="win95-dialog-content">
               <div className="win95-shutdown-message">
-                <PixelIcon name="computer" size={40} />
+                <PixelIcon variant={variant} name="computer" size={40} />
                 <p>
                   Ready for a fresh start?
                   <br />
@@ -1085,6 +1354,9 @@ export default function DesktopSimulation() {
                     setBrowserStatus('Done')
                     setAddress('http://welcome.local/')
                     setBrowserHistory(['http://welcome.local/'])
+                    setAppSearch('')
+                    setDocuments({})
+                    setNote({ id: 'readme', name: 'Read me' })
                   }}
                 >
                   Restart
@@ -1106,41 +1378,120 @@ export default function DesktopSimulation() {
           onPointerDown={(event) => event.stopPropagation()}
         >
           <div className="win95-start-brand">
-            Windows<span>95</span>
+            {variant === 'modern' ? 'MUSEUM' : 'Windows'}
+            <span>
+              {variant === 'win95' ? '95' : variant === 'xp' ? 'XP' : 'OS'}
+            </span>
           </div>
-          <div className="win95-start-items">
-            <button onClick={() => goToFolder('computer')}>
-              <PixelIcon name="computer" />
-              <span>My Computer</span>
-            </button>
-            <button onClick={() => openWindow('browser')}>
-              <PixelIcon name="internet" />
-              <span>Internet Explorer</span>
-            </button>
-            <button onClick={() => goToFolder('documents')}>
-              <PixelIcon name="folder" />
-              <span>Documents</span>
-            </button>
-            <button onClick={() => openNote('Read me', readme)}>
-              <PixelIcon name="document" />
-              <span>Read me</span>
-            </button>
-            <div className="win95-start-separator" />
-            <button
-              onClick={() => {
-                setShowDisplay(false)
-                openWindow('about', 'About Windows')
-              }}
-            >
-              <PixelIcon name="settings" />
-              <span>About this desktop</span>
-            </button>
-            <div className="win95-start-separator" />
-            <button onClick={() => openWindow('shutdown')}>
-              <PixelIcon name="computer" />
-              <span>Shut Down…</span>
-            </button>
-          </div>
+          {variant === 'modern' ? (
+            <div className="modern-launcher">
+              <label htmlFor="modern-app-search">Search apps and files</label>
+              <input
+                id="modern-app-search"
+                value={appSearch}
+                onChange={(event) => setAppSearch(event.target.value)}
+                placeholder="Try Notepad or Welcome.txt"
+                autoComplete="off"
+              />
+              <div className="modern-app-results">
+                {[
+                  {
+                    name: 'Notepad',
+                    icon: 'document' as const,
+                    action: () => openNote('Read me', readme),
+                  },
+                  {
+                    name: 'Files',
+                    icon: 'folder' as const,
+                    action: () => goToFolder('computer'),
+                  },
+                  {
+                    name: 'Browser',
+                    icon: 'internet' as const,
+                    action: () => openWindow('browser'),
+                  },
+                  {
+                    name: 'Documents',
+                    icon: 'folder' as const,
+                    action: () => goToFolder('documents'),
+                  },
+                  {
+                    name: 'Welcome.txt',
+                    icon: 'document' as const,
+                    action: () =>
+                      openNote('Welcome.txt', folders.documents.items[0].text!),
+                  },
+                  {
+                    name: 'About this desktop',
+                    icon: 'settings' as const,
+                    action: () => {
+                      setShowDisplay(false)
+                      openWindow('about')
+                    },
+                  },
+                ]
+                  .filter((app) =>
+                    app.name
+                      .toLowerCase()
+                      .includes(appSearch.toLowerCase().trim()),
+                  )
+                  .map((app) => (
+                    <button key={app.name} onClick={app.action}>
+                      <PixelIcon variant={variant} name={app.icon} size={25} />
+                      <span>{app.name}</span>
+                    </button>
+                  ))}
+              </div>
+              {![
+                'notepad',
+                'files',
+                'browser',
+                'documents',
+                'welcome.txt',
+                'about this desktop',
+              ].some((name) =>
+                name.includes(appSearch.toLowerCase().trim()),
+              ) && (
+                <p className="modern-empty-search" role="status">
+                  No apps or files found. Try Notepad or Documents.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="win95-start-items">
+              <button onClick={() => goToFolder('computer')}>
+                <PixelIcon variant={variant} name="computer" />
+                <span>My Computer</span>
+              </button>
+              <button onClick={() => openWindow('browser')}>
+                <PixelIcon variant={variant} name="internet" />
+                <span>Internet Explorer</span>
+              </button>
+              <button onClick={() => goToFolder('documents')}>
+                <PixelIcon variant={variant} name="folder" />
+                <span>Documents</span>
+              </button>
+              <button onClick={() => openNote('Read me', readme)}>
+                <PixelIcon variant={variant} name="document" />
+                <span>Read me</span>
+              </button>
+              <div className="win95-start-separator" />
+              <button
+                onClick={() => {
+                  setShowDisplay(false)
+                  openWindow('about', 'About Windows')
+                }}
+              >
+                <PixelIcon variant={variant} name="settings" />
+                <span>About this desktop</span>
+              </button>
+              <div className="win95-start-separator" />
+              <button onClick={() => openWindow('shutdown')}>
+                <PixelIcon variant={variant} name="computer" />
+                <span>Shut Down…</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
       <div
@@ -1156,8 +1507,8 @@ export default function DesktopSimulation() {
             setMenu(null)
           }}
         >
-          <PixelIcon name="flag" size={23} />
-          <strong>Start</strong>
+          <PixelIcon variant={variant} name="flag" size={23} />
+          <strong>{variant === 'modern' ? 'Apps' : 'Start'}</strong>
         </button>
         <div className="win95-taskbar-divider" />
         <div className="win95-task-list">
@@ -1182,6 +1533,7 @@ export default function DesktopSimulation() {
               }}
             >
               <PixelIcon
+                variant={variant}
                 name={
                   window.id === 'browser'
                     ? 'internet'

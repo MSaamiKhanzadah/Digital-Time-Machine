@@ -7,11 +7,12 @@ import {
   type EraYear,
 } from '../data/history'
 import DeviceArt from './DeviceArt'
+import { storageExhibits } from '../data/storage'
 
 const years: EraYear[] = [1995, 2010, 2026]
 
 export default function Comparison() {
-  const [category, setCategory] = useState<CategoryId>('computers')
+  const [category, setCategory] = useState<CategoryId | 'storage'>('computers')
   const [from, setFrom] = useState<EraYear>(1995)
   const [to, setTo] = useState<EraYear>(2026)
   return (
@@ -35,21 +36,33 @@ export default function Comparison() {
           COMPARE
           <select
             value={category}
-            onChange={(event) => setCategory(event.target.value as CategoryId)}
+            onChange={(event) =>
+              setCategory(event.target.value as CategoryId | 'storage')
+            }
           >
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
-                {item.label}
+                {item.id === 'internet'
+                  ? 'Websites'
+                  : item.id === 'programming'
+                    ? 'Programming tools'
+                    : item.id === 'mobile'
+                      ? 'Mobile phones'
+                      : item.label}
               </option>
             ))}
+            <option value="storage">Storage technology</option>
           </select>
         </label>
       </div>
       <div className="comparison-grid">
         {([from, to] as EraYear[]).map((year, side) => {
-          const exhibit = exhibits.find(
-            (item) => item.year === year && item.category === category,
-          )!
+          const exhibit =
+            category === 'storage'
+              ? storageExhibits[year]
+              : exhibits.find(
+                  (item) => item.year === year && item.category === category,
+                )!
           return (
             <article className="comparison-card" key={side}>
               <div className="comparison-card-heading">
@@ -78,7 +91,10 @@ export default function Comparison() {
                 </label>
                 <ArrowUpRight size={21} />
               </div>
-              <DeviceArt year={year} category={category} />
+              <DeviceArt
+                year={year}
+                category={category === 'storage' ? 'software' : category}
+              />
               <div className="comparison-copy">
                 <span className="micro-label accent-text">{exhibit.date}</span>
                 <h3>{exhibit.name}</h3>

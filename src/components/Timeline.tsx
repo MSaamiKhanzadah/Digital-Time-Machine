@@ -1,81 +1,132 @@
-import { ArrowLeft, ArrowRight, LockKeyhole } from 'lucide-react'
-import { timelineYears, type EraYear } from '../data/history'
-
-const available: EraYear[] = [1995, 2010, 2026]
+import { ArrowLeft, ArrowRight, ArrowUpRight, Milestone } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { milestones, timelineStops, type TimelineYear } from '../data/timeline'
 
 export default function Timeline({
   year,
   onChange,
 }: {
-  year: EraYear
-  onChange: (year: EraYear) => void
+  year: TimelineYear
+  onChange: (year: TimelineYear) => void
 }) {
-  const index = available.indexOf(year)
+  const index = timelineStops.indexOf(year)
+  const milestone = milestones[year]
+  const track = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const rail = track.current
+    const selected = rail?.querySelector<HTMLButtonElement>(
+      '[aria-pressed="true"]',
+    )
+    if (!rail || !selected) return
+    const left =
+      rail.scrollLeft +
+      selected.getBoundingClientRect().left -
+      rail.getBoundingClientRect().left -
+      (rail.clientWidth - selected.clientWidth) / 2
+    rail.scrollTo({
+      left,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    })
+  }, [year])
   return (
     <section
-      className="timeline-section"
+      className="timeline-section expanded-timeline"
       aria-label="Choose your era"
       id="eras"
     >
       <div className="timeline-heading">
         <span className="micro-label">
-          PICK A YEAR. CHANGE YOUR PERSPECTIVE.
+          76 YEARS OF IDEAS. WHERE WILL YOU GO?
         </span>
         <span className="timeline-hint">
-          <i /> 3 ERAS READY TO EXPLORE
+          <i /> 12 DESTINATIONS · 3 IMMERSIVE ERAS
         </span>
       </div>
-      <div className="timeline-track">
-        {timelineYears.map((item) => {
-          const enabled = available.includes(item as EraYear)
-          return (
-            <button
-              key={item}
-              className={`timeline-stop ${item === year ? 'is-selected' : ''}`}
-              disabled={!enabled}
-              onClick={() => onChange(item as EraYear)}
-              aria-pressed={enabled ? item === year : undefined}
-              aria-label={`${item}${enabled ? ', explore this era' : ', coming soon'}`}
-            >
-              <span className="timeline-year">{item}</span>
-              <span className="timeline-rail">
-                <i />
-              </span>
-              <span className="timeline-caption">
-                {enabled ? (
-                  item === 1995 ? (
-                    'The early web'
-                  ) : item === 2010 ? (
-                    'The social web'
-                  ) : (
-                    'The AI age'
-                  )
-                ) : (
-                  <>
-                    <LockKeyhole size={10} /> Coming soon
-                  </>
-                )}
-              </span>
-            </button>
-          )
-        })}
+      <div
+        className="timeline-track"
+        ref={track}
+        role="group"
+        aria-label="Timeline destinations"
+      >
+        {timelineStops.map((item) => (
+          <button
+            key={item}
+            className={`timeline-stop ${item === year ? 'is-selected' : ''}`}
+            onClick={() => onChange(item)}
+            aria-pressed={item === year}
+            aria-label={`${item}, explore this era`}
+          >
+            <span className="timeline-year">{item}</span>
+            <span className="timeline-rail">
+              <i />
+            </span>
+            <span className="timeline-caption">
+              {milestones[item].immersive
+                ? 'Full experience'
+                : 'Archive snapshot'}
+            </span>
+          </button>
+        ))}
       </div>
-      <div className="timeline-mobile-controls">
-        <button
-          disabled={index === 0}
-          onClick={() => onChange(available[index - 1])}
-          aria-label="Previous available era"
+      <div className="timeline-range">
+        <span>1950</span>
+        <label className="sr-only" htmlFor="year-slider">
+          Travel year
+        </label>
+        <input
+          id="year-slider"
+          type="range"
+          min={0}
+          max={timelineStops.length - 1}
+          step={1}
+          value={index}
+          aria-valuetext={`${year}: ${milestone.title}`}
+          onChange={(event) =>
+            onChange(timelineStops[Number(event.target.value)])
+          }
+        />
+        <span>2026</span>
+        <div className="timeline-step-controls">
+          <button
+            disabled={index === 0}
+            onClick={() => onChange(timelineStops[index - 1])}
+            aria-label="Previous timeline destination"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <button
+            disabled={index === timelineStops.length - 1}
+            onClick={() => onChange(timelineStops[index + 1])}
+            aria-label="Next timeline destination"
+          >
+            <ArrowRight size={16} />
+          </button>
+        </div>
+      </div>
+      <div className="timeline-milestone" aria-live="polite">
+        <span className="milestone-year">
+          <Milestone size={20} />
+          {year}
+        </span>
+        <div>
+          <span className="micro-label">
+            {milestone.immersive
+              ? 'IMMERSIVE COLLECTION'
+              : 'HISTORICAL SNAPSHOT'}
+          </span>
+          <h2>{milestone.title}</h2>
+          <p>{milestone.subtitle}</p>
+        </div>
+        <a
+          href={milestone.source.url}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Read the source for ${year}: ${milestone.source.label}`}
         >
-          <ArrowLeft size={17} />
-        </button>
-        <span>EXPLORE {index + 1} / 3</span>
-        <button
-          disabled={index === available.length - 1}
-          onClick={() => onChange(available[index + 1])}
-          aria-label="Next available era"
-        >
-          <ArrowRight size={17} />
-        </button>
+          Source <ArrowUpRight size={15} />
+        </a>
       </div>
     </section>
   )

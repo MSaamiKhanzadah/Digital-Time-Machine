@@ -4,7 +4,7 @@ import '../styles/art.css'
 type DeviceArtProps = {
   year: 1995 | 2010 | 2026
   category: 'computers' | 'internet' | 'software' | 'programming' | 'mobile'
-  variant?: 'ai'
+  variant?: 'ai' | 'ibm' | 'macintosh' | 'mini'
   className?: string
 }
 
@@ -1120,6 +1120,118 @@ function AIAssistant() {
   )
 }
 
+function MuseumHardware({
+  variant,
+}: {
+  variant: 'ibm' | 'macintosh' | 'mini'
+}) {
+  const keys = (
+    <>
+      {[0, 1, 2].map((row) => (
+        <g key={row}>
+          {Array.from({ length: 14 }, (_, column) => (
+            <rect
+              key={column}
+              x={92 + column * 11 - row * 3}
+              y={185 + row * 5}
+              width="8"
+              height="3"
+              fill="#aaa48c"
+            />
+          ))}
+        </g>
+      ))}
+    </>
+  )
+  return (
+    <g>
+      <ellipse cx="183" cy="207" rx="135" ry="8" fill="#292b2818" />
+      {variant === 'mini' ? (
+        <>
+          <path
+            d="M83 94 109 56h145l26 38v75c-2 13-198 13-197 0Z"
+            fill="#a4aaa8"
+            stroke="#8e9993"
+          />
+          <path d="M85 94h193v68c0 12-193 12-193 0Z" fill="#d2d9d3" />
+          <path
+            d="M83 94c0-8 12-38 27-40h143c15 2 27 31 27 40 0 12-197 12-197 0Z"
+            fill="#f4f3e9"
+            stroke="#cbd2c9"
+          />
+          <path d="M150 67h61m-61 3h61" stroke="#d8ddd4" strokeWidth="1" />
+          <path
+            d="M110 132h120"
+            stroke="#4b5550"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          <path d="M110 135h120" stroke="#f5f7ee" strokeWidth="1" />
+          <circle cx="250" cy="153" r="2.5" fill="#fbfcef" />
+          <path d="M99 166h163" stroke="#edf2e9" />
+          <path d="M124 181h110l-5 7H129Z" fill="#727d73" />
+        </>
+      ) : variant === 'macintosh' ? (
+        <>
+          <path d="M125 22h106l11 146-14 10H117Z" fill="#b4b098" />
+          <path d="M127 20h98l8 147H118Z" fill="#d4cdb4" stroke="#aaa58e" />
+          <rect x="132" y="34" width="80" height="81" fill="#a8a58e" />
+          <rect x="138" y="39" width="69" height="67" rx="9" fill="#2f3b35" />
+          <rect x="143" y="44" width="59" height="55" rx="6" fill="#a9bca6" />
+          <rect
+            x="160"
+            y="55"
+            width="24"
+            height="28"
+            fill="#d6dfc9"
+            stroke="#536850"
+          />
+          <path
+            d="M164 60h3m10 0h3m-15 12 4 3h8l3-3"
+            stroke="#536850"
+            strokeWidth="2"
+          />
+          <path d="M161 131h48" stroke="#555d4b" strokeWidth="4" />
+          <path d="M174 128v8" stroke="#b5b29c" strokeWidth="4" />
+          <path d="M129 148h19m-19 3h19" stroke="#a5a087" />
+          <circle cx="214" cy="152" r="2" fill="#8e9d7a" />
+          <path d="M78 179h163l22 23H60Z" fill="#d4cfb6" stroke="#b1ac94" />
+          {keys}
+          <path
+            d="M270 174c17 0 21 6 19 18-1 11-25 11-27 1-2-13-1-19 8-19Z"
+            fill="#d2ccb5"
+            stroke="#aaa58e"
+          />
+          <path d="M273 175c-12-15-34-5-41-16" stroke="#a6a48e" fill="none" />
+        </>
+      ) : (
+        <>
+          <path d="M103 31h150l9 107H96Z" fill="#b4b198" />
+          <path d="M104 30h143v101H98Z" fill="#d8d2b6" stroke="#aaa58e" />
+          <rect x="112" y="40" width="121" height="78" fill="#555e4e" />
+          <rect x="118" y="46" width="109" height="66" rx="5" fill="#1e3126" />
+          <path
+            d="M128 59h22m-22 8h70m-70 8h54m-54 8h64m-64 10h7"
+            stroke="#83ab6a"
+            strokeWidth="2"
+          />
+          <path d="M91 140h178v32H91Z" fill="#c9c1a8" stroke="#a7a18d" />
+          <path
+            d="M96 145h97m-97 5h97m-97 5h97m-97 5h97"
+            stroke="#8c927c"
+            strokeWidth="2"
+          />
+          <rect x="207" y="145" width="48" height="20" fill="#716f5f" />
+          <path d="M212 153h38m-20-4v10" stroke="#c4c0a8" strokeWidth="2" />
+          <path d="M79 179h171l23 24H61Z" fill="#d3ccb0" stroke="#a8a18a" />
+          {keys}
+          <path d="M112 199h95" stroke="#9a947e" strokeWidth="3" />
+        </>
+      )}
+    </g>
+  )
+}
+
 export default function DeviceArt({
   year,
   category,
@@ -1199,6 +1311,8 @@ export default function DeviceArt({
       </defs>
       {variant === 'ai' ? (
         <AIAssistant />
+      ) : variant ? (
+        <MuseumHardware variant={variant} />
       ) : (
         <>
           {category === 'computers' && <Computer year={year} id={id} />}

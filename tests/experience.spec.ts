@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
-test('travels through three distinct eras and clearly disables upcoming years', async ({
+test('travels through three distinct eras and opens historical snapshots', async ({
   page,
 }) => {
   const errors: string[] = []
@@ -10,9 +10,13 @@ test('travels through three distinct eras and clearly disables upcoming years', 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'The futurehas a past.',
   )
+  await page.getByRole('button', { name: '1950, explore this era' }).click()
+  await expect(page.locator('#museum-heading')).toHaveText(
+    'Can machines think?',
+  )
   await expect(
-    page.getByRole('button', { name: '2000, coming soon' }),
-  ).toBeDisabled()
+    page.getByRole('slider', { name: 'Travel year' }),
+  ).toHaveAttribute('aria-valuetext', /1950/)
   for (const [year, headline, object] of [
     [1995, 'Welcome tothe world wide web.', 'Power Macintosh 9500'],
     [2010, 'The webgets social.', 'MacBook Air'],
@@ -71,7 +75,7 @@ test('filters exhibits, opens factual details, and closes the modal with Escape'
 test('compares categories and eras and swaps without losing the selection', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/#compare')
   await page
     .getByRole('combobox', { name: 'COMPARE', exact: true })
     .selectOption('mobile')
@@ -103,7 +107,7 @@ test('compares categories and eras and swaps without losing the selection', asyn
 test('opens simulated files and browser pages and restores minimized windows', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/#desktop')
   const desktop = page.locator('.dtm-desktop')
   await desktop.scrollIntoViewIfNeeded()
   await desktop
@@ -168,10 +172,12 @@ test('fits the viewport and respects reduced motion across all eras', async ({
         ),
       )
       .toBe(true)
-    const headlineFits = await page.locator('h1 em').evaluate((element) => {
-      const bounds = element.getBoundingClientRect()
-      return bounds.left >= 0 && bounds.right <= window.innerWidth
-    })
+    const headlineFits = await page
+      .locator('#hero-title em')
+      .evaluate((element) => {
+        const bounds = element.getBoundingClientRect()
+        return bounds.left >= 0 && bounds.right <= window.innerWidth
+      })
     expect(headlineFits).toBe(true)
   }
   expect(
@@ -190,6 +196,7 @@ test('has no serious or critical accessibility violations', async ({
     await page
       .getByRole('button', { name: `${year}, explore this era` })
       .click()
+    await expect(page.locator('.app-shell')).not.toHaveClass(/era-arriving/)
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze()

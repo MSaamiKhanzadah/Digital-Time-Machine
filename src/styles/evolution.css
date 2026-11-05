@@ -1,0 +1,438 @@
+.evo-explorer {
+  min-width: 0;
+  --evo-accent-ink: #a73d22;
+}
+.era-1995 .evo-explorer {
+  --evo-accent-ink: #153794;
+}
+.era-2010 .evo-explorer {
+  --evo-accent-ink: #126ca6;
+}
+.evo-heading-icon {
+  color: var(--accent);
+  margin-top: 10px;
+}
+.evo-categories {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  background: var(--panel);
+}
+.evo-categories button {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  text-align: left;
+  min-height: 52px;
+  padding: 14px 18px;
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  font-size: 12px;
+}
+.evo-categories button:nth-child(3n) {
+  border-right: 0;
+}
+.evo-categories button:nth-child(n + 4) {
+  border-bottom: 0;
+}
+.evo-categories button > span {
+  font: 9px var(--mono);
+  color: var(--muted);
+}
+.evo-categories button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--panel);
+}
+.evo-categories button[aria-pressed='true'] > span {
+  color: #f0a07e;
+}
+.evo-categories button:hover:not([aria-pressed='true']) {
+  background: var(--soft);
+}
+.evo-categories button:focus-visible {
+  outline-offset: -4px;
+}
+.evo-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--panel);
+}
+.evo-map {
+  padding: 28px 25px;
+  min-width: 0;
+  background: linear-gradient(135deg, #e9e7df44, transparent);
+  align-self: stretch;
+}
+.evo-map-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.evo-map-heading h3 {
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.6px;
+  margin-top: 9px;
+}
+.evo-expand-all {
+  font-size: 10px;
+  white-space: nowrap;
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+  color: var(--muted);
+}
+.evo-expand-all:hover {
+  color: var(--accent);
+}
+.evo-map-caption {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+  max-width: 350px;
+  margin-top: 14px;
+}
+.evo-root,
+.evo-children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.evo-root {
+  margin-top: 28px;
+}
+.evo-children {
+  margin-left: 17px;
+  border-left: 1px solid #bfc3b2;
+  padding-left: 20px;
+}
+.evo-branch {
+  position: relative;
+  padding-top: 17px;
+}
+.evo-root > .evo-branch {
+  padding-top: 0;
+}
+.evo-children > .evo-branch:before {
+  content: '';
+  position: absolute;
+  left: -21px;
+  top: 50px;
+  width: 20px;
+  border-top: 1px solid #bfc3b2;
+}
+.evo-relationship {
+  font-size: 9px;
+  line-height: 1.6;
+  color: var(--muted);
+  display: block;
+  padding: 0 0 8px 2px;
+  max-width: 310px;
+}
+.evo-node-row {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  overflow: hidden;
+  position: relative;
+}
+.evo-node-row.evo-node-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px #e9583014;
+  background: #e9583006;
+}
+.evo-toggle {
+  width: 33px;
+  background: transparent;
+  border-right: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  align-self: stretch;
+  color: var(--muted);
+}
+.evo-toggle:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+.evo-leaf {
+  width: 33px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.evo-leaf i {
+  height: 4px;
+  width: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.evo-node {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 10px;
+  text-align: left;
+  background: transparent;
+  flex: 1;
+  min-width: 0;
+  padding: 13px 12px 13px 10px;
+}
+.evo-node:focus-visible,
+.evo-toggle:focus-visible {
+  outline-offset: -4px;
+}
+.evo-node:hover {
+  background: #e9583009;
+}
+.evo-node-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.evo-node-year {
+  font: 9px var(--mono);
+  color: var(--evo-accent-ink);
+  white-space: nowrap;
+}
+.evo-node-summary {
+  grid-column: 1/-1;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.65;
+}
+.evo-map-key {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 28px;
+}
+.evo-map-key > span {
+  width: 22px;
+  flex-shrink: 0;
+  border-top: 1px solid #bfc3b2;
+  margin-top: 7px;
+}
+.evo-map-key p {
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.evo-detail {
+  padding: 28px 30px;
+  border-left: 1px solid var(--line);
+  min-width: 0;
+  align-self: stretch;
+}
+.evo-detail-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.evo-detail-date {
+  font: 11px var(--mono);
+  color: var(--evo-accent-ink);
+}
+.evo-detail h3 {
+  font-family: Georgia, serif;
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -1.3px;
+  line-height: 1.1;
+  margin-top: 20px;
+}
+.evo-detail-summary {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 12px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.evo-facts {
+  margin: 20px 0 0;
+  display: grid;
+  gap: 18px;
+}
+.evo-facts dt,
+.evo-detail-section h4 {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  margin: 0 0 7px;
+}
+.evo-facts dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.evo-detail-section {
+  margin-top: 22px;
+}
+.evo-detail-section > p,
+.evo-detail-section > ul {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.evo-detail-section ul {
+  padding-left: 17px;
+  margin: 0;
+}
+.evo-detail-section li + li {
+  margin-top: 4px;
+}
+.evo-detail-section li::marker {
+  color: var(--accent);
+}
+.evo-related {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.evo-related span {
+  font-size: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+}
+.evo-source {
+  color: var(--evo-accent-ink);
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  width: 100%;
+}
+@media (max-width: 950px) {
+  .evo-map {
+    padding: 23px 18px;
+  }
+  .evo-detail {
+    padding: 23px;
+  }
+  .evo-children {
+    margin-left: 12px;
+    padding-left: 12px;
+  }
+  .evo-children > .evo-branch:before {
+    left: -13px;
+    width: 12px;
+  }
+  .evo-node {
+    padding: 12px 8px;
+    column-gap: 6px;
+  }
+  .evo-toggle,
+  .evo-leaf {
+    width: 25px;
+  }
+  .evo-node-name {
+    font-size: 12px;
+  }
+  .evo-node-year {
+    font-size: 8px;
+  }
+  .evo-node-summary {
+    font-size: 9px;
+  }
+}
+@media (max-width: 700px) {
+  .evo-layout {
+    grid-template-columns: 1fr;
+  }
+  .evo-detail {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 25px;
+  }
+  .evo-map {
+    padding: 25px;
+  }
+  .evo-categories {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .evo-categories button {
+    padding: 13px;
+    font-size: 11px;
+    gap: 9px;
+  }
+  .evo-categories button:nth-child(3n) {
+    border-right: 1px solid var(--line);
+  }
+  .evo-categories button:nth-child(2n) {
+    border-right: 0;
+  }
+  .evo-categories button:nth-child(n + 4) {
+    border-bottom: 1px solid var(--line);
+  }
+  .evo-categories button:nth-child(n + 5) {
+    border-bottom: 0;
+  }
+  .evo-children {
+    margin-left: 15px;
+    padding-left: 17px;
+  }
+  .evo-children > .evo-branch:before {
+    left: -18px;
+    width: 17px;
+  }
+  .evo-node-name {
+    font-size: 13px;
+  }
+  .evo-node-year {
+    font-size: 9px;
+  }
+  .evo-node-summary {
+    font-size: 10px;
+  }
+  .evo-heading-icon {
+    display: none;
+  }
+  .evo-map-caption {
+    max-width: none;
+  }
+}
+@media (max-width: 390px) {
+  .evo-map {
+    padding: 20px 16px;
+  }
+  .evo-children {
+    margin-left: 10px;
+    padding-left: 11px;
+  }
+  .evo-children > .evo-branch:before {
+    left: -12px;
+    width: 11px;
+  }
+  .evo-node {
+    grid-template-columns: 1fr;
+  }
+  .evo-node-summary {
+    grid-column: auto;
+  }
+  .evo-node-year {
+    grid-row: 2;
+  }
+  .evo-detail {
+    padding: 22px;
+  }
+  .evo-categories button {
+    font-size: 10px;
+    gap: 6px;
+  }
+}

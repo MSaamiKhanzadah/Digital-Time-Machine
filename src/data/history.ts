@@ -34,7 +34,7 @@ export const eras: Record<EraYear, Era> = {
     eyebrow: 'A NEW WORLD IS LOADING',
     headline: ['Welcome to', 'the world wide web.'],
     intro:
-      'Dial-up tones. Desktop towers. A whole new world behind a blinking cursor. Step into the year the internet started coming home.',
+      'Dial-up tones. Desktop towers. A whole new world behind a blinking cursor. Step into a year when the web reached more homes.',
     signal: 'DIAL-UP CONNECTED',
     stat: {
       value: '28.8',
@@ -61,7 +61,7 @@ export const eras: Record<EraYear, Era> = {
     intro:
       'From the first click to a world in your pocket. Travel through the computers, connections, and ideas that shaped how we live today.',
     signal: 'YOU ARE IN THE PRESENT',
-    stat: { value: '31', label: 'years of digital history · 1995—2026' },
+    stat: { value: '76', label: 'years of digital history · 1950—2026' },
     accent: '#bd542f',
   },
 }

@@ -26,7 +26,8 @@
   box-sizing: border-box;
 }
 .dtm-desktop button,
-.dtm-desktop input {
+.dtm-desktop input,
+.dtm-desktop textarea {
   font: inherit;
   color: inherit;
   letter-spacing: normal;
@@ -145,6 +146,10 @@
   font-weight: 700;
   touch-action: none;
   cursor: move;
+}
+.win95-titlebar:focus-visible {
+  outline: 1px dotted white;
+  outline-offset: -3px;
 }
 .win95-window-active .win95-titlebar {
   background: #000080;
@@ -621,13 +626,30 @@
   overflow: auto;
   padding: 9px 11px;
   user-select: text;
-}
-.win95-notepad > pre {
   margin: 0;
-  white-space: pre-wrap;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
+  width: 100%;
+  resize: none;
+  border-radius: 0;
+  font-family: 'Courier New', monospace !important;
+  font-size: 12px !important;
   line-height: 1.5;
+}
+.win95-notepad-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 2px 5px;
+  flex-shrink: 0;
+}
+.win95-notepad-toolbar > button {
+  flex-shrink: 0;
+}
+.win95-notepad-toolbar > span {
+  font-size: 10px;
+  color: #333;
+}
+.win95-notepad-status > span:last-child {
+  min-width: 0;
 }
 .win95-window-dialog .win95-titlebar {
   flex-shrink: 0;
@@ -925,4 +947,491 @@
   .win95-desktop-watermark {
     right: 16px;
   }
+}
+
+/* Three original desktop recreations share the same functional window engine. */
+.desktop-variant-xp {
+  background:
+    radial-gradient(ellipse at 20% 105%, #669d38 0 31%, transparent 31.5%),
+    radial-gradient(ellipse at 100% 108%, #78ab42 0 38%, transparent 38.5%),
+    linear-gradient(#458bc9, #acd8ee 70%);
+  font-family: Tahoma, Arial, sans-serif;
+}
+.desktop-variant-xp .win95-window {
+  border: 2px solid #1655c7;
+  border-radius: 8px 8px 0 0;
+  background: #ece9d8;
+  box-shadow: 2px 5px 10px #173e6640;
+  padding: 0 2px 2px;
+}
+.desktop-variant-xp .win95-titlebar {
+  height: 29px;
+  min-height: 29px;
+  background: linear-gradient(#74a3e8, #2e70d4 24%, #0046ac 82%, #2365ce);
+  color: white;
+  border-radius: 6px 6px 0 0;
+  padding: 3px 4px;
+  text-shadow: 1px 1px #15468c;
+}
+.desktop-variant-xp .win95-window-active .win95-titlebar {
+  background: linear-gradient(#7db1ff, #397ee4 20%, #0053cd 80%, #2868d3);
+}
+.desktop-variant-xp .win95-window-controls button {
+  width: 21px;
+  height: 21px;
+  border-radius: 3px;
+  border: 1px solid #fff;
+  background: linear-gradient(135deg, #9bc3ff, #1c61cc);
+  color: white;
+  box-shadow: inset 1px 1px #fff7;
+}
+.desktop-variant-xp .win95-window-controls button:last-child {
+  background: linear-gradient(135deg, #f3ad8c, #cd4325);
+}
+.desktop-variant-xp .win95-close-glyph {
+  color: white;
+  text-shadow: 1px 1px #7e2011;
+}
+.desktop-variant-xp .win95-taskbar {
+  height: 36px;
+  background: linear-gradient(#4795f0, #1e62c9 22%, #2161c3 80%, #164caa);
+  border-top: 1px solid #90c6ff;
+  padding-left: 0;
+  box-shadow: none;
+  color: white;
+}
+.desktop-variant-xp .win95-start-button {
+  height: 35px;
+  min-width: 84px;
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(#8bc16c, #3d8c35 30%, #3b8832 75%, #5eac48);
+  border: 1px solid #23601f;
+  box-shadow: inset 0 1px #b5d9a9;
+  color: white !important;
+  font-style: italic;
+  gap: 6px;
+  text-shadow: 1px 1px #25451f;
+  padding-inline: 9px;
+}
+.desktop-variant-xp .win95-start-button strong {
+  font-size: 17px;
+}
+.desktop-variant-xp .win95-task-button {
+  background: #3b81db;
+  box-shadow:
+    inset 1px 1px #83b5ff,
+    inset -1px -1px #174c9c;
+  border-radius: 4px;
+  color: white;
+  max-width: 180px;
+}
+.desktop-variant-xp .win95-task-button-active {
+  background: #1559b4;
+  box-shadow:
+    inset 1px 1px #153e85,
+    inset -1px -1px #7faff1;
+}
+.desktop-variant-xp .win95-clock {
+  background: #168ae2;
+  box-shadow: inset 1px 0 #1e4cbd;
+  color: white;
+}
+.desktop-variant-xp .win95-start-menu {
+  border: 2px solid #1b57bd;
+  border-radius: 8px 8px 0 0;
+  padding: 0 3px 3px;
+  background: #f8f9ef;
+  box-shadow: 3px 0 12px #193c6650;
+  width: 280px;
+  bottom: 35px;
+  display: block;
+}
+.desktop-variant-xp .win95-start-brand {
+  writing-mode: horizontal-tb;
+  transform: none;
+  width: auto;
+  padding: 11px 13px;
+  background: linear-gradient(#2d78d7, #1c60ba);
+  border-radius: 6px 6px 0 0;
+  color: #fff;
+  font-size: 17px;
+}
+.desktop-variant-xp .win95-start-brand > span {
+  margin-left: 5px;
+}
+.desktop-variant-xp .win95-start-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 6px 3px;
+  gap: 3px;
+}
+.desktop-variant-xp .win95-start-items > button {
+  font-size: 10px;
+  min-height: 49px;
+  gap: 7px;
+  padding: 8px 5px;
+  color: #1b3766;
+}
+.desktop-variant-xp .win95-start-items > button:hover {
+  color: white;
+  background: #2c6ec5;
+}
+.desktop-variant-xp .win95-start-separator {
+  grid-column: 1/-1;
+  margin-block: 3px;
+  background: #c3cfdb;
+  border: 0;
+}
+.desktop-variant-xp .win95-explorer-aside {
+  background: linear-gradient(#e0edff, #a9c7ed);
+  color: #1b467b;
+}
+.desktop-variant-xp .win95-desktop-watermark {
+  color: #153f67;
+  text-shadow: 0 1px #ffffff60;
+}
+.desktop-variant-xp .win95-desktop-watermark strong {
+  opacity: 1;
+}
+.desktop-variant-xp .win95-desktop-icon {
+  text-shadow:
+    1px 1px #18385d,
+    0 0 3px #234d7c;
+}
+.desktop-variant-modern {
+  background:
+    radial-gradient(ellipse at 15% 90%, #755c52 0, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, #506862 0, transparent 55%),
+    linear-gradient(135deg, #202c30, #303a39);
+  font-family: Arial, sans-serif;
+}
+.desktop-variant-modern .win95-window {
+  border: 1px solid #dde4df;
+  border-radius: 10px;
+  background: #f3f5f3;
+  box-shadow: 0 14px 45px #0005;
+  padding: 0;
+  overflow: hidden;
+}
+.desktop-variant-modern .win95-titlebar,
+.desktop-variant-modern .win95-window-active .win95-titlebar {
+  height: 35px;
+  min-height: 35px;
+  background: #edf1ed;
+  color: #293832;
+  padding: 7px 8px;
+  border-bottom: 1px solid #d4ddd5;
+  font-weight: 500;
+}
+.desktop-variant-modern .win95-window-active .win95-titlebar {
+  background: #fff;
+}
+.desktop-variant-modern .win95-window-controls {
+  gap: 5px;
+}
+.desktop-variant-modern .win95-window-controls button {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  height: 23px;
+  width: 23px;
+  border-radius: 5px;
+  font: 15px Arial;
+  color: #34483d;
+}
+.desktop-variant-modern .win95-window-controls button:hover {
+  background: #d9e2dc;
+}
+.desktop-variant-modern .win95-window-controls button:last-child:hover {
+  background: #b33e2c;
+  color: white;
+}
+.desktop-variant-modern .win95-taskbar {
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  height: 41px;
+  background: #edf2efee;
+  backdrop-filter: blur(12px);
+  border: 1px solid #b6c8bd60;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px #0003;
+  padding: 5px 7px;
+  gap: 9px;
+}
+.desktop-variant-modern .win95-start-button {
+  height: 29px;
+  border-radius: 6px;
+  box-shadow: none;
+  border: 1px solid #c5d2ca;
+  background: #fff;
+  padding-inline: 8px;
+  gap: 7px;
+}
+.desktop-variant-modern .win95-start-button strong {
+  font-size: 11px;
+  font-weight: 600;
+}
+.desktop-variant-modern .win95-task-button {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  border-radius: 5px;
+  max-width: 165px;
+}
+.desktop-variant-modern .win95-task-button-active {
+  background: #d8e4dc;
+  box-shadow: inset 0 -2px #52755d;
+}
+.desktop-variant-modern .win95-taskbar-divider {
+  background: #c6d1c9;
+  border: 0;
+  width: 1px;
+  height: 23px;
+}
+.desktop-variant-modern .win95-clock {
+  box-shadow: none;
+  font-size: 10px;
+}
+.desktop-variant-modern .win95-start-menu {
+  left: 12px;
+  bottom: 56px;
+  background: #f7faf7ed;
+  backdrop-filter: blur(18px);
+  width: min(360px, calc(100% - 24px));
+  border: 1px solid #d6e0d8;
+  border-radius: 12px;
+  display: block;
+  padding: 0;
+  box-shadow: 0 12px 45px #0005;
+  overflow: hidden;
+}
+.desktop-variant-modern .win95-start-brand {
+  writing-mode: horizontal-tb;
+  transform: none;
+  width: auto;
+  background: transparent;
+  color: #465b4e;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 18px 18px 0;
+}
+.desktop-variant-modern .win95-start-brand > span {
+  color: #7b8b80;
+  margin-left: 6px;
+}
+.modern-launcher {
+  padding: 12px 17px 17px;
+}
+.modern-launcher > label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #334c3b;
+}
+.modern-launcher > input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #bccdc0;
+  border-radius: 6px;
+  height: 34px;
+  background: white;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.modern-app-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 13px;
+}
+.modern-app-results > button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  font-size: 11px;
+}
+.modern-app-results > button:hover {
+  background: white;
+  border-color: #c9d9cc;
+}
+.modern-empty-search {
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 15px 0 5px;
+  color: #596c5e;
+}
+.desktop-variant-modern .win95-explorer-aside {
+  background: #edf3ed;
+  border-right: 1px solid #dbe5dc;
+}
+.desktop-variant-modern .win95-files {
+  gap: 23px 10px;
+}
+.desktop-variant-modern .win95-explorer-toolbar {
+  border-top: 0;
+  border-bottom: 1px solid #d9e2db;
+  background: #f6f8f5;
+  padding: 5px;
+  min-height: 34px;
+}
+.desktop-variant-modern .win95-folder-address {
+  border: 1px solid #ccd9cf;
+  border-radius: 4px;
+}
+.desktop-variant-modern .win95-menubar {
+  background: #f6f8f5;
+}
+.desktop-variant-modern .win95-statusbar {
+  background: #edf2ec;
+  font-size: 10px;
+  margin: 0;
+  min-height: 23px;
+}
+.desktop-variant-modern .win95-statusbar > span {
+  border: 0;
+  padding: 5px 8px;
+}
+.desktop-variant-modern .win95-notepad-toolbar {
+  background: #eef4ee;
+  border-block: 1px solid #dbe5dc;
+}
+.desktop-variant-modern .win95-classic-button {
+  border: 1px solid #becfc3;
+  background: #fff;
+  box-shadow: none;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.desktop-variant-modern .win95-webpage {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  border: 0;
+}
+.desktop-variant-modern .win95-webpage h3 {
+  font-family: Arial, sans-serif;
+  color: #334c3b;
+  font-size: 24px;
+}
+.desktop-variant-modern .win95-web-links button,
+.desktop-variant-modern .win95-web-link {
+  font-family: Arial, sans-serif !important;
+  color: #245a7b !important;
+}
+.desktop-variant-modern .win95-desktop-watermark {
+  color: #dcebe0;
+}
+.desktop-variant-modern .win95-desktop-watermark strong {
+  font-weight: 400;
+  letter-spacing: -4px;
+}
+.desktop-variant-modern button:focus-visible,
+.desktop-variant-modern input:focus-visible {
+  outline: 2px solid #416d52;
+  outline-offset: 2px;
+}
+.desktop-era-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 24px;
+}
+.desktop-era-controls > span {
+  font: 9px var(--mono);
+  color: var(--muted);
+  margin-right: 8px;
+}
+.desktop-era-controls > button {
+  padding: 11px 15px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  font-size: 11px;
+  min-height: 40px;
+}
+.desktop-era-controls > button[aria-pressed='true'] {
+  color: var(--panel);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+@media (max-width: 600px) {
+  .desktop-variant-modern .win95-window-controls {
+    gap: 2px;
+  }
+  .desktop-variant-modern .win95-window-controls button {
+    width: 21px;
+  }
+  .desktop-variant-modern .win95-window-title > svg {
+    display: none;
+  }
+  .desktop-variant-modern .win95-titlebar {
+    font-size: 10px;
+  }
+  .desktop-variant-modern .win95-taskbar {
+    left: 6px;
+    right: 6px;
+    gap: 5px;
+  }
+  .desktop-variant-modern .win95-start-menu {
+    left: 6px;
+  }
+  .desktop-variant-modern .win95-task-button > svg {
+    display: none;
+  }
+  .desktop-variant-modern .win95-clock {
+    padding-inline: 3px;
+  }
+  .desktop-variant-xp .win95-start-menu {
+    width: 260px;
+  }
+  .desktop-era-controls {
+    gap: 7px;
+  }
+  .desktop-era-controls > span {
+    width: 100%;
+  }
+  .desktop-era-controls > button {
+    padding-inline: 13px;
+    font-size: 10px;
+  }
+}
+
+.win95-explorer-aside > span {
+  color: #586255;
+}
+.win95-titlebar {
+  background: #626262;
+  color: #fff;
+}
+.desktop-variant-modern .win95-rainbow-line {
+  background: #c7d9cb;
+  height: 1px;
+}
+.desktop-variant-modern .win95-file {
+  font-size: 11px;
+  padding: 8px;
+  border-radius: 7px;
+}
+.desktop-variant-modern .win95-file:hover {
+  background: #edf3ed;
+}
+.desktop-variant-modern .win95-folder-address > span:last-child {
+  border: 0;
+  border-radius: 3px;
+  background: #edf3ed;
+}
+.desktop-variant-modern .win95-desktop-icon {
+  font-family: Arial, sans-serif;
+}
+.modern-desktop-icon {
+  display: block;
+  flex-shrink: 0;
 }

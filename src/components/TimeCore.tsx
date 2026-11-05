@@ -2,11 +2,17 @@ import { ArrowDownRight, ArrowUpRight, Orbit, Sparkles } from 'lucide-react'
 import type { EraYear } from '../data/history'
 import DeviceArt from './DeviceArt'
 
-export default function TimeCore({ year }: { year: EraYear }) {
+export default function TimeCore({
+  year,
+  destination = year,
+}: {
+  year: EraYear
+  destination?: number
+}) {
   return (
     <div
       className={`time-core core-${year}`}
-      aria-label={`Time machine destination: ${year}`}
+      aria-label={`Time machine destination: ${destination}`}
     >
       <div className="core-topline">
         <span>
@@ -33,13 +39,17 @@ export default function TimeCore({ year }: { year: EraYear }) {
             <Sparkles size={24} strokeWidth={1.3} />
           </div>
           <div className="core-year">
-            20<span>26</span>
+            {String(destination).slice(0, 2)}
+            <span>{String(destination).slice(2)}</span>
             <span className="year-outline" aria-hidden="true">
-              2026
+              {destination}
             </span>
           </div>
           <div className="core-era-label">
-            <span className="core-line" /> THE AGE OF POSSIBILITY{' '}
+            <span className="core-line" />{' '}
+            {destination === 2026
+              ? 'THE AGE OF POSSIBILITY'
+              : 'A MOMENT THAT CHANGED EVERYTHING'}{' '}
             <ArrowUpRight size={15} />
           </div>
         </>
